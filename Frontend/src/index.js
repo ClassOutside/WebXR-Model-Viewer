@@ -1,24 +1,15 @@
 import React, { useState, useCallback, useEffect } from "react";
 import ReactDOM from "react-dom/client";
+import ReceiveTextFromUnity from "./ReceiveTextFromUnityButton";
 import UnityLoader from "./UnityLoader";
+import SentTextToUnityButton from "./SentTextToUnityButton";
+import SpawnObjectButton from "./SpawnObjectButton";
+import config from "../appConfig";
 
 const App = () => {
   const [iframeWindow, setIframeWindow] = useState(null);
-  const [backendURL, setBackendURL] = useState(null);
 
-  useEffect(() => {
-    const fetchConfig = async () => {
-      try {
-        const response = await fetch("/appConfig.json");
-        const config = await response.json();
-        const { backendIPAddress, backendPort } = config;
-        setBackendURL(`${backendIPAddress}:${backendPort}`);
-      } catch (error) {
-        console.error("Error fetching config:", error);
-      }
-    };
-    fetchConfig();
-  }, []);
+  const backendURL = `${config.backendIPAddress}:${config.backendPort}`;
 
   const handleIframeLoad = useCallback(
     (iframeWindow) => {
@@ -29,6 +20,7 @@ const App = () => {
   );
 
   const setUnityBackendURL = (iframeWindow) => {
+    console.log("Setting Unity Backend URL");
     if (iframeWindow && iframeWindow.unityInstance && backendURL) {
       iframeWindow.unityInstance.SendMessage(
         "ExplorerManager",
@@ -42,6 +34,9 @@ const App = () => {
     <div>
       <h1>Hello, World!</h1>
       <UnityLoader onIframeLoad={handleIframeLoad} />
+      {iframeWindow && <ReceiveTextFromUnity iframeWindow={iframeWindow} />}
+      {iframeWindow && <SentTextToUnityButton iframeWindow={iframeWindow} />}
+      {iframeWindow && <SpawnObjectButton iframeWindow={iframeWindow} />}
     </div>
   );
 };
